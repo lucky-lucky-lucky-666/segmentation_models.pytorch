@@ -1,4 +1,4 @@
-""" Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
+"""Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
 
 Attributes:
 
@@ -22,6 +22,7 @@ Methods:
         number of feature tensors = 6 (one with same resolution as input and 5 downsampled),
         depth = 3 -> number of feature tensors = 4 (one with same resolution as input and 3 downsampled).
 """
+
 import torch.nn as nn
 from efficientnet_pytorch import EfficientNet
 from efficientnet_pytorch.utils import url_map, url_map_advprop, get_model_params
@@ -31,7 +32,6 @@ from ._base import EncoderMixin
 
 class EfficientNetEncoder(EfficientNet, EncoderMixin):
     def __init__(self, stage_idxs, out_channels, model_name, depth=5):
-
         blocks_args, global_params = get_model_params(model_name, override_params=None)
         super().__init__(blocks_args, global_params)
 
@@ -46,21 +46,20 @@ class EfficientNetEncoder(EfficientNet, EncoderMixin):
         return [
             nn.Identity(),
             nn.Sequential(self._conv_stem, self._bn0, self._swish),
-            self._blocks[:self._stage_idxs[0]],
-            self._blocks[self._stage_idxs[0]:self._stage_idxs[1]],
-            self._blocks[self._stage_idxs[1]:self._stage_idxs[2]],
-            self._blocks[self._stage_idxs[2]:],
+            self._blocks[: self._stage_idxs[0]],
+            self._blocks[self._stage_idxs[0] : self._stage_idxs[1]],
+            self._blocks[self._stage_idxs[1] : self._stage_idxs[2]],
+            self._blocks[self._stage_idxs[2] :],
         ]
 
     def forward(self, x):
         stages = self.get_stages()
 
-        block_number = 0.
+        block_number = 0.0
         drop_connect_rate = self._global_params.drop_connect_rate
 
         features = []
         for i in range(self._depth + 1):
-
             # Identity and Sequential stages
             if i < 2:
                 x = stages[i](x)
@@ -69,7 +68,7 @@ class EfficientNetEncoder(EfficientNet, EncoderMixin):
             else:
                 for module in stages[i]:
                     drop_connect = drop_connect_rate * block_number / len(self._blocks)
-                    block_number += 1.
+                    block_number += 1.0
                     x = module(x, drop_connect)
 
             features.append(x)
@@ -97,7 +96,7 @@ def _get_pretrained_settings(encoder):
             "url": url_map_advprop[encoder],
             "input_space": "RGB",
             "input_range": [0, 1],
-        }
+        },
     }
     return pretrained_settings
 

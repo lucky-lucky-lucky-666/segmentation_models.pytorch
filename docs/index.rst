@@ -16,6 +16,8 @@ Welcome to Segmentation Models's documentation!
    encoders
    encoders_timm
    losses
+   metrics
+   save_load
    insights
 
 

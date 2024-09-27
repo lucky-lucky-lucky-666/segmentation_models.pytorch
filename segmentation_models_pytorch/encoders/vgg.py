@@ -1,4 +1,4 @@
-""" Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
+"""Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
 
 Attributes:
 
@@ -48,9 +48,11 @@ class VGGEncoder(VGG, EncoderMixin):
         self._in_channels = 3
         del self.classifier
 
-    def make_dilated(self, stage_list, dilation_list):
-        raise ValueError("'VGG' models do not support dilated mode due to Max Pooling"
-                         " operations for downsampling!")
+    def make_dilated(self, *args, **kwargs):
+        raise ValueError(
+            "'VGG' models do not support dilated mode due to Max Pooling"
+            " operations for downsampling!"
+        )
 
     def get_stages(self):
         stages = []

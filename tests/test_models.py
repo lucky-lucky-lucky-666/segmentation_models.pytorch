@@ -1,4 +1,3 @@
-import os
 import sys
 import mock
 import pytest
@@ -6,7 +5,7 @@ import torch
 
 # mock detection module
 sys.modules["torchvision._C"] = mock.Mock()
-import segmentation_models_pytorch as smp
+import segmentation_models_pytorch as smp  # noqa
 
 
 def get_encoders():
@@ -18,7 +17,7 @@ def get_encoders():
     ]
     encoders = smp.encoders.get_encoder_names()
     encoders = [e for e in encoders if e not in exclude_encoders]
-    encoders.append("tu-resnet34") # for timm universal encoder
+    encoders.append("tu-resnet34")  # for timm universal encoder
     return encoders
 
 
@@ -27,7 +26,14 @@ DEFAULT_ENCODER = "resnet18"
 
 
 def get_sample(model_class):
-    if model_class in [smp.Unet, smp.Linknet, smp.FPN, smp.PSPNet, smp.UnetPlusPlus, smp.MAnet]:
+    if model_class in [
+        smp.Unet,
+        smp.Linknet,
+        smp.FPN,
+        smp.PSPNet,
+        smp.UnetPlusPlus,
+        smp.MAnet,
+    ]:
         sample = torch.ones([1, 3, 64, 64])
     elif model_class == smp.PAN:
         sample = torch.ones([2, 3, 256, 256])
@@ -54,10 +60,26 @@ def _test_forward_backward(model, sample, test_shape=False):
 
 @pytest.mark.parametrize("encoder_name", ENCODERS)
 @pytest.mark.parametrize("encoder_depth", [3, 5])
-@pytest.mark.parametrize("model_class", [smp.FPN, smp.PSPNet, smp.Linknet, smp.Unet, smp.UnetPlusPlus])
+@pytest.mark.parametrize(
+    "model_class", [smp.FPN, smp.PSPNet, smp.Linknet, smp.Unet, smp.UnetPlusPlus]
+)
 def test_forward(model_class, encoder_name, encoder_depth, **kwargs):
-    if model_class is smp.Unet or model_class is smp.UnetPlusPlus or model_class is smp.MAnet:
+    if (
+        model_class is smp.Unet
+        or model_class is smp.UnetPlusPlus
+        or model_class is smp.MAnet
+    ):
         kwargs["decoder_channels"] = (16, 16, 16, 16, 16)[-encoder_depth:]
+    if model_class in [smp.UnetPlusPlus, smp.Linknet] and encoder_name.startswith(
+        "mit_b"
+    ):
+        return  # skip mit_b*
+    if (
+        model_class is smp.FPN
+        and encoder_name.startswith("mit_b")
+        and encoder_depth != 5
+    ):
+        return  # skip mit_b*
     model = model_class(
         encoder_name, encoder_depth=encoder_depth, encoder_weights=None, **kwargs
     )
@@ -73,7 +95,16 @@ def test_forward(model_class, encoder_name, encoder_depth, **kwargs):
 
 @pytest.mark.parametrize(
     "model_class",
-    [smp.PAN, smp.FPN, smp.PSPNet, smp.Linknet, smp.Unet, smp.UnetPlusPlus, smp.MAnet, smp.DeepLabV3]
+    [
+        smp.PAN,
+        smp.FPN,
+        smp.PSPNet,
+        smp.Linknet,
+        smp.Unet,
+        smp.UnetPlusPlus,
+        smp.MAnet,
+        smp.DeepLabV3,
+    ],
 )
 def test_forward_backward(model_class):
     sample = get_sample(model_class)
@@ -81,7 +112,10 @@ def test_forward_backward(model_class):
     _test_forward_backward(model, sample)
 
 
-@pytest.mark.parametrize("model_class", [smp.PAN, smp.FPN, smp.PSPNet, smp.Linknet, smp.Unet, smp.UnetPlusPlus, smp.MAnet])
+@pytest.mark.parametrize(
+    "model_class",
+    [smp.PAN, smp.FPN, smp.PSPNet, smp.Linknet, smp.Unet, smp.UnetPlusPlus, smp.MAnet],
+)
 def test_aux_output(model_class):
     model = model_class(
         DEFAULT_ENCODER, encoder_weights=None, aux_params=dict(classes=2)
@@ -103,9 +137,8 @@ def test_upsample(model_class, upsampling):
 
 
 @pytest.mark.parametrize("model_class", [smp.FPN])
-@pytest.mark.parametrize("encoder_name", ENCODERS)
 @pytest.mark.parametrize("in_channels", [1, 2, 4])
-def test_in_channels(model_class, encoder_name, in_channels):
+def test_in_channels(model_class, in_channels):
     sample = torch.ones([1, in_channels, 64, 64])
     model = model_class(DEFAULT_ENCODER, encoder_weights=None, in_channels=in_channels)
     model.eval()
@@ -118,10 +151,11 @@ def test_in_channels(model_class, encoder_name, in_channels):
 @pytest.mark.parametrize("encoder_name", ENCODERS)
 def test_dilation(encoder_name):
     if (
-        encoder_name in ['inceptionresnetv2', 'xception', 'inceptionv4'] or
-        encoder_name.startswith('vgg') or 
-        encoder_name.startswith('densenet') or
-        encoder_name.startswith('timm-res')
+        encoder_name in ["inceptionresnetv2", "xception", "inceptionv4"]
+        or encoder_name.startswith("vgg")
+        or encoder_name.startswith("densenet")
+        or encoder_name.startswith("timm-res")
+        or encoder_name.startswith("mit_b")
     ):
         return
 

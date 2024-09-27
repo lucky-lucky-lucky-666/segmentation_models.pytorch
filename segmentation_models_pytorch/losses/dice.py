@@ -10,7 +10,6 @@ __all__ = ["DiceLoss"]
 
 
 class DiceLoss(_Loss):
-
     def __init__(
         self,
         mode: str,
@@ -21,7 +20,7 @@ class DiceLoss(_Loss):
         ignore_index: Optional[int] = None,
         eps: float = 1e-7,
     ):
-        """Implementation of Dice loss for image segmentation task.
+        """Dice loss for image segmentation task.
         It supports binary, multiclass and multilabel cases
 
         Args:
@@ -31,7 +30,7 @@ class DiceLoss(_Loss):
             from_logits: If True, assumes input is raw logits
             smooth: Smoothness constant for dice coefficient (a)
             ignore_index: Label that indicates ignored pixels (does not contribute to loss)
-            eps: A small epsilon for numerical stability to avoid zero division error 
+            eps: A small epsilon for numerical stability to avoid zero division error
                 (denominator will be always greater or equal to eps)
 
         Shape
@@ -45,7 +44,9 @@ class DiceLoss(_Loss):
         super(DiceLoss, self).__init__()
         self.mode = mode
         if classes is not None:
-            assert mode != BINARY_MODE, "Masking classes is not supported with mode=binary"
+            assert (
+                mode != BINARY_MODE
+            ), "Masking classes is not supported with mode=binary"
             classes = to_tensor(classes, dtype=torch.long)
 
         self.classes = classes
@@ -56,7 +57,6 @@ class DiceLoss(_Loss):
         self.ignore_index = ignore_index
 
     def forward(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> torch.Tensor:
-
         assert y_true.size(0) == y_pred.size(0)
 
         if self.from_logits:
@@ -89,11 +89,13 @@ class DiceLoss(_Loss):
                 mask = y_true != self.ignore_index
                 y_pred = y_pred * mask.unsqueeze(1)
 
-                y_true = F.one_hot((y_true * mask).to(torch.long), num_classes)  # N,H*W -> N,H*W, C
-                y_true = y_true.permute(0, 2, 1) * mask.unsqueeze(1)  # H, C, H*W
+                y_true = F.one_hot(
+                    (y_true * mask).to(torch.long), num_classes
+                )  # N,H*W -> N,H*W, C
+                y_true = y_true.permute(0, 2, 1) * mask.unsqueeze(1)  # N, C, H*W
             else:
                 y_true = F.one_hot(y_true, num_classes)  # N,H*W -> N,H*W, C
-                y_true = y_true.permute(0, 2, 1)  # H, C, H*W
+                y_true = y_true.permute(0, 2, 1)  # N, C, H*W
 
         if self.mode == MULTILABEL_MODE:
             y_true = y_true.view(bs, num_classes, -1)
@@ -104,7 +106,9 @@ class DiceLoss(_Loss):
                 y_pred = y_pred * mask
                 y_true = y_true * mask
 
-        scores = self.compute_score(y_pred, y_true.type_as(y_pred), smooth=self.smooth, eps=self.eps, dims=dims)
+        scores = self.compute_score(
+            y_pred, y_true.type_as(y_pred), smooth=self.smooth, eps=self.eps, dims=dims
+        )
 
         if self.log_loss:
             loss = -torch.log(scores.clamp_min(self.eps))
@@ -127,5 +131,7 @@ class DiceLoss(_Loss):
     def aggregate_loss(self, loss):
         return loss.mean()
 
-    def compute_score(self, output, target, smooth=0.0, eps=1e-7, dims=None) -> torch.Tensor:
+    def compute_score(
+        self, output, target, smooth=0.0, eps=1e-7, dims=None
+    ) -> torch.Tensor:
         return soft_dice_score(output, target, smooth, eps, dims)

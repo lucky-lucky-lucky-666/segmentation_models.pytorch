@@ -1,4 +1,4 @@
-""" Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
+"""Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
 
 Attributes:
 
@@ -33,7 +33,6 @@ from ._base import EncoderMixin
 
 
 class TransitionWithSkip(nn.Module):
-
     def __init__(self, module):
         super().__init__()
         self.module = module
@@ -54,23 +53,33 @@ class DenseNetEncoder(DenseNet, EncoderMixin):
         self._in_channels = 3
         del self.classifier
 
-    def make_dilated(self, stage_list, dilation_list):
-        raise ValueError("DenseNet encoders do not support dilated mode "
-                         "due to pooling operation for downsampling!")
+    def make_dilated(self, *args, **kwargs):
+        raise ValueError(
+            "DenseNet encoders do not support dilated mode "
+            "due to pooling operation for downsampling!"
+        )
 
     def get_stages(self):
         return [
             nn.Identity(),
-            nn.Sequential(self.features.conv0, self.features.norm0, self.features.relu0),
-            nn.Sequential(self.features.pool0, self.features.denseblock1,
-                          TransitionWithSkip(self.features.transition1)),
-            nn.Sequential(self.features.denseblock2, TransitionWithSkip(self.features.transition2)),
-            nn.Sequential(self.features.denseblock3, TransitionWithSkip(self.features.transition3)),
-            nn.Sequential(self.features.denseblock4, self.features.norm5)
+            nn.Sequential(
+                self.features.conv0, self.features.norm0, self.features.relu0
+            ),
+            nn.Sequential(
+                self.features.pool0,
+                self.features.denseblock1,
+                TransitionWithSkip(self.features.transition1),
+            ),
+            nn.Sequential(
+                self.features.denseblock2, TransitionWithSkip(self.features.transition2)
+            ),
+            nn.Sequential(
+                self.features.denseblock3, TransitionWithSkip(self.features.transition3)
+            ),
+            nn.Sequential(self.features.denseblock4, self.features.norm5),
         ]
 
     def forward(self, x):
-
         stages = self.get_stages()
 
         features = []

@@ -4,7 +4,15 @@
 **Python library with Neural Networks for Image  
 Segmentation based on [PyTorch](https://pytorch.org/).**  
 
-![PyPI version](https://badge.fury.io/py/segmentation-models-pytorch.svg) [![Build Status](https://travis-ci.com/qubvel/segmentation_models.pytorch.svg?branch=master)](https://travis-ci.com/qubvel/segmentation_models.pytorch) [![Documentation Status](https://readthedocs.org/projects/smp/badge/?version=latest)](https://smp.readthedocs.io/en/latest/?badge=latest) <br> ![Downloads](https://pepy.tech/badge/segmentation-models-pytorch) [![Generic badge](https://img.shields.io/badge/License-MIT-<COLOR>.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/License-MIT-<COLOR>.svg?style=for-the-badge)](https://github.com/qubvel/segmentation_models.pytorch/blob/master/LICENSE) 
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/qubvel/segmentation_models.pytorch/tests.yml?branch=master&style=for-the-badge)](https://github.com/qubvel/segmentation_models.pytorch/actions/workflows/tests.yml) 
+[![Read the Docs](https://img.shields.io/readthedocs/smp?style=for-the-badge&logo=readthedocs&logoColor=white)](https://smp.readthedocs.io/en/latest/) 
+<br>
+[![PyPI](https://img.shields.io/pypi/v/segmentation-models-pytorch?color=blue&style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/segmentation-models-pytorch/) 
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/segmentation-models-pytorch?style=for-the-badge&color=blue)](https://pepy.tech/project/segmentation-models-pytorch) 
+<br>
+[![PyTorch - Version](https://img.shields.io/badge/PYTORCH-1.4+-red?style=for-the-badge&logo=pytorch)](https://pepy.tech/project/segmentation-models-pytorch) 
+[![Python - Version](https://img.shields.io/badge/PYTHON-3.7+-red?style=for-the-badge&logo=python&logoColor=white)](https://pepy.tech/project/segmentation-models-pytorch) 
 
 </div>
 
@@ -12,8 +20,9 @@ The main features of this library are:
 
  - High level API (just two lines to create a neural network)
  - 9 models architectures for binary and multi class segmentation (including legendary Unet)
- - 113 available encoders
+ - 124 available encoders (and 500+ encoders from [timm](https://github.com/rwightman/pytorch-image-models))
  - All encoders have pre-trained weights for faster and better convergence
+ - Popular metrics and losses for training routines
  
 ### [📚 Project Documentation 📚](http://smp.readthedocs.io/)
 
@@ -57,7 +66,7 @@ model = smp.Unet(
 
 #### 2. Configure data preprocessing
 
-All encoders have pretrained weights. Preparing your data the same way as during weights pre-training may give your better results (higher metric score and faster convergence). But it is relevant only for 1-2-3-channels images and **not necessary** in case you train the whole model, not only decoder.
+All encoders have pretrained weights. Preparing your data the same way as during weights pre-training may give you better results (higher metric score and faster convergence). It is **not necessary** in case you train the whole model, not only decoder.
 
 ```python
 from segmentation_models_pytorch.encoders import get_preprocessing_fn
@@ -68,9 +77,10 @@ preprocess_input = get_preprocessing_fn('resnet18', pretrained='imagenet')
 Congratulations! You are done! Now you can train your model with your favorite framework!
 
 ### 💡 Examples <a name="examples"></a>
+ - Training model for pets binary segmentation with Pytorch-Lightning [notebook](https://github.com/qubvel/segmentation_models.pytorch/blob/master/examples/binary_segmentation_intro.ipynb) and [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qubvel/segmentation_models.pytorch/blob/master/examples/binary_segmentation_intro.ipynb)
  - Training model for cars segmentation on CamVid dataset [here](https://github.com/qubvel/segmentation_models.pytorch/blob/master/examples/cars%20segmentation%20(camvid).ipynb).
- - Training SMP model with [Catalyst](https://github.com/catalyst-team/catalyst) (high-level framework for PyTorch), [TTAch](https://github.com/qubvel/ttach) (TTA library for PyTorch) and [Albumentations](https://github.com/albu/albumentations) (fast image augmentation library) - [here](https://github.com/catalyst-team/catalyst/blob/master/examples/notebooks/segmentation-tutorial.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/catalyst/blob/master/examples/notebooks/segmentation-tutorial.ipynb)
- - Training SMP model with [Pytorch-Lightning](https://pytorch-lightning.readthedocs.io) framework - [here](https://github.com/ternaus/cloths_segmentation) (clothes binary segmentation by [@teranus](https://github.com/ternaus)).
+ - Training SMP model with [Catalyst](https://github.com/catalyst-team/catalyst) (high-level framework for PyTorch), [TTAch](https://github.com/qubvel/ttach) (TTA library for PyTorch) and [Albumentations](https://github.com/albu/albumentations) (fast image augmentation library) - [here](https://github.com/catalyst-team/catalyst/blob/v21.02rc0/examples/notebooks/segmentation-tutorial.ipynb) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/catalyst/blob/v21.02rc0/examples/notebooks/segmentation-tutorial.ipynb)
+ - Training SMP model with [Pytorch-Lightning](https://pytorch-lightning.readthedocs.io) framework - [here](https://github.com/ternaus/cloths_segmentation) (clothes binary segmentation by [@ternaus](https://github.com/ternaus)).
 
 ### 📦 Models <a name="models"></a>
 
@@ -342,6 +352,48 @@ The following is a list of supported encoders in the SMP. Select the appropriate
 </div>
 </details>
 
+<details>
+<summary style="margin-left: 25px;">Mix Vision Transformer</summary>
+<div style="margin-left: 25px;">
+
+Backbone from SegFormer pretrained on Imagenet! Can be used with other decoders from package, you can combine Mix Vision Transformer with Unet, FPN and others!
+
+Limitations:  
+
+   - encoder is **not** supported by Linknet, Unet++
+   - encoder is supported by FPN only for encoder **depth = 5**
+
+|Encoder                         |Weights                         |Params, M                       |
+|--------------------------------|:------------------------------:|:------------------------------:|
+|mit_b0                          |imagenet                        |3M                              |
+|mit_b1                          |imagenet                        |13M                             |
+|mit_b2                          |imagenet                        |24M                             |
+|mit_b3                          |imagenet                        |44M                             |
+|mit_b4                          |imagenet                        |60M                             |
+|mit_b5                          |imagenet                        |81M                             |
+
+</div>
+</details>
+
+<details>
+<summary style="margin-left: 25px;">MobileOne</summary>
+<div style="margin-left: 25px;">
+
+Apple's "sub-one-ms" Backbone pretrained on Imagenet! Can be used with all decoders.
+
+Note: In the official github repo the s0 variant has additional num_conv_branches, leading to more params than s1.
+
+|Encoder                         |Weights                         |Params, M                       |
+|--------------------------------|:------------------------------:|:------------------------------:|
+|mobileone_s0                    |imagenet                        |4.6M                              |
+|mobileone_s1                    |imagenet                        |4.0M                              |
+|mobileone_s2                    |imagenet                        |6.5M                              |
+|mobileone_s3                    |imagenet                        |8.8M                              |
+|mobileone_s4                    |imagenet                        |13.6M                             |
+
+</div>
+</details>
+
 
 \* `ssl`, `swsl` - semi-supervised and weakly-supervised learning on ImageNet ([repo](https://github.com/facebookresearch/semi-supervised-ImageNet1K-models)).
 
@@ -351,10 +403,10 @@ The following is a list of supported encoders in the SMP. Select the appropriate
 
 Pytorch Image Models (a.k.a. timm) has a lot of pretrained models and interface which allows using these models as encoders in smp, however, not all models are supported
 
- - transformer models do not have ``features_only`` functionality implemented
- - some models do not have appropriate strides
+ - not all transformer models have ``features_only`` functionality implemented that is required for encoder
+ - some models have inappropriate strides
 
-Total number of supported encoders: 467
+Total number of supported encoders: 549
  - [table with available encoders](https://smp.readthedocs.io/en/latest/encoders_timm.html)
 
 ### 🔁 Models API <a name="api"></a>
@@ -417,21 +469,30 @@ $ pip install git+https://github.com/qubvel/segmentation_models.pytorch
 
 ### 🤝 Contributing
 
-##### Run test
+#### Install SMP  
+
 ```bash
-$ docker build -f docker/Dockerfile.dev -t smp:dev . && docker run --rm smp:dev pytest -p no:cacheprovider
+make install_dev  # create .venv, install SMP in dev mode
 ```
-##### Generate table
+
+#### Run tests and code checks
+
 ```bash
-$ docker build -f docker/Dockerfile.dev -t smp:dev . && docker run --rm smp:dev python misc/generate_table.py
+make fixup         # Ruff for formatting and lint checks
+```
+
+#### Update table with encoders  
+
+```bash
+make table        # generate table with encoders and print to stdout
 ```
 
 ### 📝 Citing
 ```
-@misc{Yakubovskiy:2019,
-  Author = {Pavel Yakubovskiy},
+@misc{Iakubovskii:2019,
+  Author = {Pavel Iakubovskii},
   Title = {Segmentation Models Pytorch},
-  Year = {2020},
+  Year = {2019},
   Publisher = {GitHub},
   Journal = {GitHub repository},
   Howpublished = {\url{https://github.com/qubvel/segmentation_models.pytorch}}

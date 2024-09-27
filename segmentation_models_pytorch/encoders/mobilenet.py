@@ -1,4 +1,4 @@
-""" Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
+"""Each encoder should have following attributes and methods and be inherited from `_base.EncoderMixin`
 
 Attributes:
 
@@ -30,7 +30,6 @@ from ._base import EncoderMixin
 
 
 class MobileNetV2Encoder(torchvision.models.MobileNetV2, EncoderMixin):
-
     def __init__(self, out_channels, depth=5, **kwargs):
         super().__init__(**kwargs)
         self._depth = depth
@@ -74,10 +73,8 @@ mobilenet_encoders = {
                 "url": "https://download.pytorch.org/models/mobilenet_v2-b0353104.pth",
                 "input_space": "RGB",
                 "input_range": [0, 1],
-            },
+            }
         },
-        "params": {
-            "out_channels": (3, 16, 24, 32, 96, 1280),
-        },
-    },
+        "params": {"out_channels": (3, 16, 24, 32, 96, 1280)},
+    }
 }

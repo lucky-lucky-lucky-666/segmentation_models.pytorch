@@ -1,5 +1,5 @@
 from typing import Optional
-from torch import nn, Tensor
+from torch import nn
 import torch
 import torch.nn.functional as F
 from ._functional import label_smoothed_nll_loss
@@ -8,7 +8,6 @@ __all__ = ["SoftCrossEntropyLoss"]
 
 
 class SoftCrossEntropyLoss(nn.Module):
-
     __constants__ = ["reduction", "ignore_index", "smooth_factor"]
 
     def __init__(
@@ -19,10 +18,10 @@ class SoftCrossEntropyLoss(nn.Module):
         dim: int = 1,
     ):
         """Drop-in replacement for torch.nn.CrossEntropyLoss with label_smoothing
-        
+
         Args:
             smooth_factor: Factor to smooth target (e.g. if smooth_factor=0.1 then [1, 0, 0] -> [0.9, 0.05, 0.05])
-        
+
         Shape
              - **y_pred** - torch.Tensor of shape (N, C, H, W)
              - **y_true** - torch.Tensor of shape (N, H, W)

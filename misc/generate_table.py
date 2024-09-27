@@ -4,17 +4,17 @@ encoders = smp.encoders.encoders
 
 
 WIDTH = 32
-COLUMNS = [
-    "Encoder",
-    "Weights",
-    "Params, M",
-]
+COLUMNS = ["Encoder", "Weights", "Params, M"]
+
 
 def wrap_row(r):
     return "|{}|".format(r)
 
-header = "|".join([column.ljust(WIDTH, ' ') for column in COLUMNS])
-separator = "|".join(["-" * WIDTH] + [":" + "-" * (WIDTH - 2) + ":"] * (len(COLUMNS) - 1))
+
+header = "|".join([column.ljust(WIDTH, " ") for column in COLUMNS])
+separator = "|".join(
+    ["-" * WIDTH] + [":" + "-" * (WIDTH - 2) + ":"] * (len(COLUMNS) - 1)
+)
 
 print(wrap_row(header))
 print(wrap_row(separator))

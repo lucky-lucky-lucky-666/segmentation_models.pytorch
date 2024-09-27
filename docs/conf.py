@@ -14,23 +14,26 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import os
-import re
 import sys
 import datetime
-sys.path.append('..')
+# import sphinx_rtd_theme
+
+sys.path.append("..")
 
 # -- Project information -----------------------------------------------------
 
-project = 'Segmentation Models'
-copyright = '{}, Pavel Yakubovskiy'.format(datetime.datetime.now().year)
-author = 'Pavel Yakubovskiy'
+project = "Segmentation Models"
+copyright = "{}, Pavel Iakubovskii".format(datetime.datetime.now().year)
+author = "Pavel Iakubovskii"
+
 
 def get_version():
-    sys.path.append('../segmentation_models_pytorch')
+    sys.path.append("../segmentation_models_pytorch")
     from __version__ import __version__ as version
+
     sys.path.pop(-1)
     return version
+
 
 version = get_version()
 
@@ -41,15 +44,16 @@ version = get_version()
 # ones.
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.coverage',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.mathjax', 
+    "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.mathjax",
+    "autodocsumm",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -63,14 +67,13 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 
-import sphinx_rtd_theme
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# html_theme = "sphinx_rtd_theme"
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # import karma_sphinx_theme
 # html_theme = "karma_sphinx_theme"
-import faculty_sphinx_theme
-html_theme = "faculty_sphinx_theme"
+
+html_theme = "sphinx_book_theme"
 
 # import catalyst_sphinx_theme
 # html_theme = "catalyst_sphinx_theme"
@@ -81,7 +84,7 @@ html_logo = "logo.png"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # -- Extension configuration -------------------------------------------------
 
@@ -91,30 +94,40 @@ napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False
 
 autodoc_mock_imports = [
-    'torch',
-    'tqdm',
-    'numpy',
-    'timm',
-    'pretrainedmodels',
-    'torchvision',
-    'efficientnet-pytorch',
-    'segmentation_models_pytorch.encoders',
-    'segmentation_models_pytorch.utils',
+    "torch",
+    "tqdm",
+    "numpy",
+    "timm",
+    "cv2",
+    "PIL",
+    "pretrainedmodels",
+    "torchvision",
+    "efficientnet-pytorch",
+    "segmentation_models_pytorch.encoders",
+    "segmentation_models_pytorch.utils",
     # 'segmentation_models_pytorch.base',
 ]
 
-autoclass_content = 'both'
-autodoc_typehints = 'description'
+autoclass_content = "both"
+autodoc_typehints = "description"
 
 # --- Work around to make autoclass signatures not (*args, **kwargs) ----------
 
-class FakeSignature():
+
+class FakeSignature:
     def __getattribute__(self, *args):
         raise ValueError
+
 
 def f(app, obj, bound_method):
     if "__new__" in obj.__name__:
         obj.__signature__ = FakeSignature()
 
+
 def setup(app):
-    app.connect('autodoc-before-process-signature', f)
+    app.connect("autodoc-before-process-signature", f)
+
+
+# Custom configuration --------------------------------------------------------
+
+autodoc_member_order = "bysource"
